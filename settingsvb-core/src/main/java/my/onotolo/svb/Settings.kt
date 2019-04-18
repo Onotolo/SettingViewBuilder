@@ -4,8 +4,17 @@ import android.content.Context
 
 abstract class Settings<T> {
 
-    abstract val settingName: String
-    abstract val description: String?
+    abstract val settingNameResId: Int
+    abstract val descriptionResId: Int?
+
+    fun getName(context: Context?): String? {
+        return context?.getString(settingNameResId)
+    }
+    fun getDescription(context: Context?): String? {
+        val resId = descriptionResId ?: return null
+        return context?.getString(resId)
+    }
+
     abstract val id: String
 
     abstract val defaultValue: T
