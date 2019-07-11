@@ -3,6 +3,7 @@ package my.onotolo.svb
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import my.onotolo.andrset.Settings
 import java.util.*
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
@@ -10,10 +11,10 @@ abstract class SettingViewBuilder<T: Any>(protected val setting: Settings<T>) {
 
     protected abstract val viewResources: WeakHashMap<Class<*>, Int>
 
-    protected var onClickCallback: () -> Unit = {}
+    protected var onSettingChangeCallback: (T) -> Unit = {}
 
-    infix fun withOnClickCallback(callback: () -> Unit): SettingViewBuilder<T> {
-        this.onClickCallback = callback
+    infix fun withOnSettingChangeCallback(callback: (T) -> Unit): SettingViewBuilder<T> {
+        onSettingChangeCallback = callback
         return this
     }
 

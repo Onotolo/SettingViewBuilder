@@ -19,7 +19,9 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+        maven {
+            url = "https://raw.githubusercontent.com/Onotolo/AndroidLibsMavenRepo/master"
+        }
     }
 }
 
