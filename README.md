@@ -1,4 +1,4 @@
-# SettingsViewBuilder
+# SettingViewBuilder
 
 Project's `build.gradle`:
 ```groovy
@@ -16,6 +16,6 @@ Module's `build.gradle`:
 ```groovy
 dependencies {
     ...
-    implementation 'my.onotolo.android:svb:0.0.3'
+    implementation 'my.onotolo.android:svb:0.0.5'
 }
 ```
