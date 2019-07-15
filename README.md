@@ -162,7 +162,7 @@ Once you've prepared all the stuff mentioned before you are able to add a view f
 ```kotlin
 {
     ...
-    (SettingViewBuilderImpl forSetting IsDarkThemeEnabled)
+    (SettingViewBuilderImpl forSetting IsTimerHidden)
         .withOnSettingChangeCallback { value, cancel -> 
             ...
         }
