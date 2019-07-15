@@ -17,7 +17,7 @@ Module's `build.gradle`:
 ```groovy
 dependencies {
     ...
-    implementation 'my.onotolo.android:svb:0.0.5'
+    implementation 'my.onotolo.android:svb:0.0.7'
     implementation 'my.onotolo.android:android-settings:0.0.2'
 }
 ```
