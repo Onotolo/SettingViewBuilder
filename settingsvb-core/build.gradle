@@ -1,3 +1,6 @@
+plugins {
+    id 'digital.wup.android-maven-publish' version '3.6.2'
+}
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
@@ -9,14 +12,35 @@ android {
         targetSdkVersion 28
         versionCode 6
         versionName "0.0.6"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         archivesBaseName = "settingsvb"
     }
     buildTypes {
         release {
             minifyEnabled false
             debuggable true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier = 'sources'
+}
+
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            from components.android
+            groupId 'my.onotolo.android'
+            artifactId 'svb'
+            version android.defaultConfig.versionName
+
+            artifact sourcesJar
+        }
+    }
+    repositories {
+        maven {
+            url "C:\\Users\\shira\\StudioProjects\\AndroidLibsMavenRepo"
         }
     }
 }
