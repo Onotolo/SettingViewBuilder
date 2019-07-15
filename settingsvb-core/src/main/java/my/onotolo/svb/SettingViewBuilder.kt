@@ -42,12 +42,12 @@ abstract class SettingViewBuilder<T: Any>(protected val setting: Setting<T>) {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(resource, parent, false)
 
-        prepareView(view, setting[parent.context], resource)
+        prepareView(view, setting[parent.context], resource, onSettingChangeCallback)
         if (attachToParent)
             parent.addView(view)
 
         return view
     }
 
-    abstract fun prepareView(view: View, value: T?, layoutRes: Int)
+    protected abstract fun prepareView(view: View, value: T?, layoutRes: Int, callback: (T, CancelAction) -> Unit)
 }
