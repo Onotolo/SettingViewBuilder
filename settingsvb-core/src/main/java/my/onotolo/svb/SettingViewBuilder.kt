@@ -7,13 +7,15 @@ import my.onotolo.andrset.Setting
 import java.util.*
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
+typealias CancelAction = () -> Unit
+
 abstract class SettingViewBuilder<T: Any>(protected val setting: Setting<T>) {
 
     protected abstract val viewResources: WeakHashMap<Class<*>, Int>
 
-    protected var onSettingChangeCallback: (T) -> Unit = {}
+    protected var onSettingChangeCallback: (T, CancelAction) -> Unit = {_,_ -> }
 
-    infix fun withOnSettingChangeCallback(callback: (T) -> Unit): SettingViewBuilder<T> {
+    infix fun withOnSettingChangeCallback(callback: (T, CancelAction) -> Unit): SettingViewBuilder<T> {
         onSettingChangeCallback = callback
         return this
     }
