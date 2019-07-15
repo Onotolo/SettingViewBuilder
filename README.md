@@ -22,9 +22,9 @@ dependencies {
 }
 ```
 
-## Usage
-
-* First, you need a setting for which you want to create your view, e.g.:
+## Preparation
+### Make some `Setting`
+First, you need a setting which you want to create your view for, e.g.:
 ```kotlin
 object IsTimerHidden: BaseSetting<Boolean>() {
 
@@ -35,9 +35,10 @@ object IsTimerHidden: BaseSetting<Boolean>() {
     override val id: String = "Hide timer"
 }
 ```
-For more information about this step refer to [AndroidSettings](https://github.com/Onotolo/AndroidSettings) library
-* Your next step is to create layout file for this type of setting.
-For our `Boolean` setting we'll create a layout containing two `TextView`s for name and description and `Switch` to represent condition of the setting:
+> For more information about this step refer to [AndroidSettings](https://github.com/Onotolo/AndroidSettings) library
+### Create layout file
+Your next step is to create layout file for this type of setting.
+As an example, for my `Boolean` setting I'll create a layout containing two `TextView`s for name and description and `Switch` to represent condition of the setting:
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -55,6 +56,7 @@ For our `Boolean` setting we'll create a layout containing two `TextView`s for n
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:paddingEnd="8dp"
+        android:text="Setting name"
         android:textSize="18sp"
         app:layout_constraintEnd_toStartOf="@+id/settings_line_switch"
         app:layout_constraintStart_toStartOf="parent"
@@ -67,6 +69,7 @@ For our `Boolean` setting we'll create a layout containing two `TextView`s for n
         android:layout_marginStart="16dp"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="16dp"
+        android:text="Setting description"
         android:textAlignment="viewStart"
         app:layout_constraintEnd_toStartOf="@+id/settings_line_switch"
         app:layout_constraintStart_toStartOf="parent"
@@ -84,4 +87,85 @@ For our `Boolean` setting we'll create a layout containing two `TextView`s for n
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
-As a result you should see something like this in your Layout Redactor's Preview:
+My layout will look somehow like this:
+![Image of settings line preview](https://onotolo.github.io/SettingViewBuilder/images/bool_settings_line.png)
+
+### Implementing `SettingViewBuilder`
+Now it's time to implement `SettingViewBuilder`:
+```kotlin
+class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
+        SettingViewBuilder<T>(setting) {
+
+    override val viewResources = WeakHashMap(mapOf(
+            Boolean::class.java to R.layout.settings_line_boolean
+    ))
+
+    companion object {
+        infix fun <T: Any>forSetting(setting: Setting<T>): SettingViewBuilderImpl<T> {
+            return SettingViewBuilderImpl(setting)
+        }
+    }
+
+    override fun prepareView(view: View, value: T?, layoutRes: Int) {
+        when (setting.defaultValue) {
+            is Boolean -> prepareBoolean(view, setting as Setting<Boolean>)
+            else -> throw Exception("Type needs array of values provided")
+        }
+    }
+
+    private fun prepareBoolean(view: View, setting: Setting<Boolean>) {
+    
+        view.settings_line_name.text = setting.getName(view.context)
+
+        if (setting.getDescription(view.context) != null) {
+            view.settings_line_descr?.text = setting.getDescription(view.context)
+        } else
+            view.settings_line_descr?.visibility = View.GONE
+
+        val switch = view.settings_line_switch
+
+        switch.isChecked = setting[view.context]
+
+        val callback = onSettingChangeCallback
+                as? (Boolean, () -> Unit) -> Unit ?: throw Exception("Wrong callback type")
+
+        view.setOnClickListener {
+
+            val value = !setting[view.context]
+            setting[view.context] = value
+
+            switch.isChecked = value
+
+            callback(value) {
+                view.callOnClick()
+            }
+        }
+        switch.setOnCheckedChangeListener { buttonView, isChecked ->
+
+            val value = setting[view.context]
+            if (value == isChecked)
+                return@setOnCheckedChangeListener
+                
+            setting[buttonView.context] = isChecked
+            callback(value) {
+                switch.callOnClick()
+            }
+        }
+    }
+}
+```
+As you can see, when implementing view builer one must implement `viewResources` field and `prepareView` method:
+* `viewResources` field is used to bind settings types to layout resource files. You must specify layout resource for each type of settings you build views for, otherwise exception will be thrown.
+* `prepareView` method is used to configure a view created by builder. This is a place to bind setting to it's view, e.g. set name and description, put listeners and so on.
+## Usage
+Once you've prepared all the stuff mentioned before you are able to add a view for your setting in any container view you can reach through code:
+```kotlin
+{
+    ...
+    (SettingViewBuilderImpl forSetting IsDarkThemeEnabled)
+        .withOnSettingChangeCallback { value, cancel -> 
+            ...
+        }
+        .build(containerView)
+    ...
+}
