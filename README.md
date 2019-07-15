@@ -93,6 +93,8 @@ My layout will look somehow like this:
 ### Implementing `SettingViewBuilder`
 Now it's time to implement `SettingViewBuilder`:
 ```kotlin
+typealias OnSettingChangeCallback<T> = (T, () -> Unit) -> Unit
+
 class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
         SettingViewBuilder<T>(setting) {
 
@@ -106,14 +108,14 @@ class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
         }
     }
 
-    override fun prepareView(view: View, value: T?, layoutRes: Int) {
+    override fun prepareView(view: View, value: T?, layoutRes: Int, , callback: OnSettingChangeCallback<T>) {
         when (setting.defaultValue) {
-            is Boolean -> prepareBoolean(view, setting as Setting<Boolean>)
+            is Boolean -> prepareBoolean(view, setting as Setting<Boolean>, callback as OnSettingChangeCallback<Boolean>)
             else -> throw Exception("Type needs array of values provided")
         }
     }
 
-    private fun prepareBoolean(view: View, setting: Setting<Boolean>) {
+    private fun prepareBoolean(view: View, setting: Setting<Boolean>, callback: OnSettingChangeCallback<Boolean>) {
     
         view.settings_line_name.text = setting.getName(view.context)
 
@@ -125,9 +127,6 @@ class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
         val switch = view.settings_line_switch
 
         switch.isChecked = setting[view.context]
-
-        val callback = onSettingChangeCallback
-                as? (Boolean, () -> Unit) -> Unit ?: throw Exception("Wrong callback type")
 
         view.setOnClickListener {
 
