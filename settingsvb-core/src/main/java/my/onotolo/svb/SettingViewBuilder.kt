@@ -3,11 +3,11 @@ package my.onotolo.svb
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import my.onotolo.andrset.Settings
+import my.onotolo.andrset.Setting
 import java.util.*
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
-abstract class SettingViewBuilder<T: Any>(protected val setting: Settings<T>) {
+abstract class SettingViewBuilder<T: Any>(protected val setting: Setting<T>) {
 
     protected abstract val viewResources: WeakHashMap<Class<*>, Int>
 
