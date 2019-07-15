@@ -93,7 +93,8 @@ My layout will look somehow like this:
 ### Implementing `SettingViewBuilder`
 Now it's time to implement `SettingViewBuilder`:
 ```kotlin
-typealias OnSettingChangeCallback<T> = (T, () -> Unit) -> Unit
+typealias CancelAction = () -> Unit
+typealias OnSettingChangeCallback<T> = (T, CancelAction) -> Unit
 
 class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
         SettingViewBuilder<T>(setting) {
