@@ -18,7 +18,7 @@ Module's `build.gradle`:
 dependencies {
     ...
     implementation 'my.onotolo.android:svb:0.0.7'
-    implementation 'my.onotolo.android:android-settings:0.0.2'
+    implementation 'my.onotolo.android:android-settings:0.0.3'
 }
 ```
 
