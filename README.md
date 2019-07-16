@@ -101,7 +101,7 @@ class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
     ))
     
     override val bindFunctions = ClassFuncMap(
-        Boolean::class.java toFunc boolBindFunc
+        Boolean::class.java toFunc ::prepareBoolean
     )
 
     companion object {
