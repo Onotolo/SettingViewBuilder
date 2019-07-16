@@ -109,7 +109,7 @@ class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
         }
     }
 
-    override fun prepareView(view: View, value: T?, layoutRes: Int, , callback: OnSettingChangeCallback<T>) {
+    override fun prepareView(view: View, value: T?, layoutRes: Int, callback: OnSettingChangeCallback<T>) {
         when (setting.defaultValue) {
             is Boolean -> prepareBoolean(view, setting as Setting<Boolean>, callback as OnSettingChangeCallback<Boolean>)
             else -> throw Exception("Type needs array of values provided")
