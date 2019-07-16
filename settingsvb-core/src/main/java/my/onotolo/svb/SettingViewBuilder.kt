@@ -8,12 +8,16 @@ import java.util.*
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 typealias CancelAction = () -> Unit
+typealias OnSettingChangeCallback<T> = (T, CancelAction) -> Unit
+typealias BindFunction<T> = (view: View, value: T, setting: Setting<T>, callback: OnSettingChangeCallback<T>) -> Unit
 
 abstract class SettingViewBuilder<T: Any>(protected val setting: Setting<T>) {
 
     protected abstract val viewResources: WeakHashMap<Class<*>, Int>
 
-    protected var onSettingChangeCallback: (T, CancelAction) -> Unit = {_,_ -> }
+    protected abstract val bindFunctions: ClassFuncMap
+
+    protected var onSettingChangeCallback: (T, CancelAction) -> Unit = { _, _ -> }
 
     infix fun withOnSettingChangeCallback(callback: (T, CancelAction) -> Unit): SettingViewBuilder<T> {
         onSettingChangeCallback = callback
@@ -42,12 +46,31 @@ abstract class SettingViewBuilder<T: Any>(protected val setting: Setting<T>) {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(resource, parent, false)
 
-        prepareView(view, setting[parent.context], resource, onSettingChangeCallback)
+        prepareView(view)
         if (attachToParent)
             parent.addView(view)
 
         return view
     }
 
-    protected abstract fun prepareView(view: View, value: T?, layoutRes: Int, callback: (T, CancelAction) -> Unit)
+    protected fun prepareView(view: View) {
+
+        var clazz: Class<*> =
+            setting.defaultValue::class.javaPrimitiveType
+                ?: setting.defaultValue.javaClass
+                ?: throw error("Can't find java class for type ${
+                setting.defaultValue::class.simpleName}")
+
+        var bindFunction: BindFunction<T>?
+        do {
+            bindFunction = bindFunctions[clazz] as? BindFunction<T>
+            clazz = clazz.superclass ?: break
+        } while (bindFunction == null && clazz != JvmType.Object::class.java)
+
+        if (bindFunction == null)
+            throw Exception("Bind function resource not defined for class ${
+            setting.defaultValue::class.java.canonicalName}")
+
+        bindFunction(view, setting[view.context], setting, onSettingChangeCallback)
+    }
 }
