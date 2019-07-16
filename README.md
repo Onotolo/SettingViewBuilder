@@ -17,7 +17,7 @@ Module's `build.gradle`:
 ```groovy
 dependencies {
     ...
-    implementation 'my.onotolo.android:svb:0.0.7'
+    implementation 'my.onotolo.android:svb:0.0.9'
     implementation 'my.onotolo.android:android-settings:0.0.3'
 }
 ```
@@ -93,15 +93,16 @@ My layout will look somehow like this:
 ### Implementing `SettingViewBuilder`
 Now it's time to implement `SettingViewBuilder`:
 ```kotlin
-typealias CancelAction = () -> Unit
-typealias OnSettingChangeCallback<T> = (T, CancelAction) -> Unit
-
 class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
         SettingViewBuilder<T>(setting) {
 
-    override val viewResources = WeakHashMap(mapOf(
+    override val viewResources = WeakHashMap<Class<*>, Int>(mapOf(
             Boolean::class.java to R.layout.settings_line_boolean
     ))
+    
+    override val bindFunctions = ClassFuncMap(
+        Boolean::class.java toFunc boolBindFunc
+    )
 
     companion object {
         infix fun <T: Any>forSetting(setting: Setting<T>): SettingViewBuilderImpl<T> {
@@ -109,16 +110,13 @@ class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
         }
     }
 
-    override fun prepareView(view: View, value: T?, layoutRes: Int, callback: OnSettingChangeCallback<T>) {
-        when (setting.defaultValue) {
-            is Boolean -> prepareBoolean(view, setting as Setting<Boolean>, callback as OnSettingChangeCallback<Boolean>)
-            else -> throw Exception("Type needs array of values provided")
-        }
-    }
-
-    private fun prepareBoolean(view: View, setting: Setting<Boolean>, callback: OnSettingChangeCallback<Boolean>) {
+    private fun prepareBoolean(
+        view: View,
+        currentValue: Boolean,
+        setting: Setting<Boolean>,
+        callback: OnSettingChangeCallback<Boolean>) {
     
-        view.settings_line_name.text = setting.getName(view.context)
+        view.setting_line_name.text = setting.getName(view.context)
 
         if (setting.getDescription(view.context) != null) {
             view.settings_line_descr?.text = setting.getDescription(view.context)
@@ -145,7 +143,7 @@ class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
             val value = setting[view.context]
             if (value == isChecked)
                 return@setOnCheckedChangeListener
-                
+
             setting[buttonView.context] = isChecked
             callback(value) {
                 switch.callOnClick()
@@ -154,18 +152,21 @@ class SettingViewBuilderImpl<T : Any> constructor(setting: Setting<T>):
     }
 }
 ```
-As you can see, when implementing view builer one must implement `viewResources` field and `prepareView` method:
+As you can see, when implementing view builer one must implement `viewResources` and `bindFunctions` fields:
 * `viewResources` field is used to bind settings types to layout resource files. You must specify layout resource for each type of settings you build views for, otherwise exception will be thrown.
-* `prepareView` method is used to configure a view created by builder. This is a place to bind setting to it's view, e.g. set name and description, put listeners and so on.
+* `bindFunctions` field is used to bind settings types to functions which configure different views created by builder. This is a place to bind setting to it's view, e.g. set name and description, put listeners and so on.
 ## Usage
 Once you've prepared all the stuff mentioned before you are able to add a view for your setting in any container view you can reach through code:
 ```kotlin
 {
     ...
     (SettingViewBuilderImpl forSetting IsTimerHidden)
-        .withOnSettingChangeCallback { value, cancel -> 
+        .withOnSettingChangeCallback { value, cancelFunc -> 
             ...
         }
         .build(containerView)
     ...
 }
+```
+## Example
+You can find example project [here](https://github.com/Onotolo/SettingViewBuilderExample)
