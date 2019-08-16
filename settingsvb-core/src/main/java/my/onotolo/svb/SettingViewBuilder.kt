@@ -3,6 +3,7 @@ package my.onotolo.svb
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import my.onotolo.svb.settings.VisibleSetting
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 typealias CancelFunc = () -> Unit

@@ -3,6 +3,7 @@ package my.onotolo.svb
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import my.onotolo.svb.settings.VisibleSetting
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
@@ -72,7 +73,7 @@ open class SettingsViewBuilder(val parent: ViewGroup, val adapter: Adapter) {
     }
 
     @SettingsBuilderDomainClass
-    class SettingConfiguration<T> {
+    open class SettingConfiguration<T> {
         var onSettingChangeCallback: OnSettingChangeCallback<T> = { _, _ -> }
 
         fun withCallback(callback: OnSettingChangeCallback<T>) {

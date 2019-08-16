@@ -1,4 +1,4 @@
-package my.onotolo.svb
+package my.onotolo.svb.settings
 
 import android.content.Context
 import my.onotolo.andrset.Setting
@@ -16,5 +16,5 @@ abstract class VisibleSetting<T> : Setting<T>() {
         val resId = descriptionResId ?: return null
         return context?.getString(resId)
     }
-
 }
+
