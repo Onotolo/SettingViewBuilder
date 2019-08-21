@@ -8,15 +8,15 @@ import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 typealias CancelFunc = () -> Unit
 typealias OnSettingChangeCallback<T> = (value: T, cancelFunc: CancelFunc) -> Unit
-typealias BindFunction<T> = (view: View, value: T, setting: VisibleSetting<T>, callback: OnSettingChangeCallback<T>) -> Unit
+typealias BindFunction<T> = (view: View, configuration: SettingConfiguration<T>) -> Unit
 
-internal class SettingViewBuilder<T : Any>(
-    private val configuration: SettingsViewBuilder.SettingConfiguration<T>,
+class SettingViewBuilder<T : Any>(
+    private val configuration: SettingConfiguration<T>,
     private val setting: VisibleSetting<T>,
-    private val adapter: SettingsViewBuilder.Adapter
+    private val adapter: SettingsAdapter
 ) {
 
-    internal fun build(parent: ViewGroup): View {
+    fun build(parent: ViewGroup): View {
         return inflateView(parent)
     }
 
@@ -60,6 +60,6 @@ internal class SettingViewBuilder<T : Any>(
             throw Exception("Bind function resource not defined for class ${
             setting.defaultValue::class.java.canonicalName}")
 
-        bindFunction(view, setting[view.context], setting, configuration.onSettingChangeCallback)
+        bindFunction(view, configuration)
     }
 }

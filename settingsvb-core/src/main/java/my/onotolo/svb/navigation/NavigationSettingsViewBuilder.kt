@@ -2,6 +2,7 @@ package my.onotolo.svb.navigation
 
 import android.view.View
 import android.view.ViewGroup
+import my.onotolo.svb.SettingsAdapter
 import my.onotolo.svb.SettingsViewBuilder
 
 typealias BuildSettingsFunc = (parent: ViewGroup, adapter: NavigationSettingsViewBuilder.NavigationAdapter) -> Unit
@@ -20,16 +21,16 @@ class NavigationSettingsViewBuilder(parent: ViewGroup, adapter: NavigationAdapte
         }
     }
 
-    abstract class NavigationAdapter : Adapter {
+    abstract class NavigationAdapter : SettingsAdapter {
 
         /**
          * You should not set [View.onClickListener] here, it is done in [NavigationAdapter.makeNavigationView] function.
          * @return [View] onClick of which will trigger screen change
          */
-        protected abstract fun makeView(parent: ViewGroup, title: String): View
+        protected abstract fun makeNavView(parent: ViewGroup, title: String): View
 
         fun makeNavigationView(parent: ViewGroup, title: String, buildSettings: BuildSettingsFunc): View {
-            val view = makeView(parent, title)
+            val view = makeNavView(parent, title)
 
             view.setOnClickListener {
                 navigateToScreen(title, buildSettings)
